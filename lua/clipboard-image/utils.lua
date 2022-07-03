@@ -2,7 +2,7 @@ local M = {}
 
 ---Reference https://vi.stackexchange.com/a/2577/33116
 ---@return string os_name
-M.get_os = function ()
+M.get_os = function()
   if vim.fn.has('win32') == 1 then
     return 'Windows'
   end
@@ -11,12 +11,15 @@ end
 
 ---Get command to *check* and *paste* clipboard content
 ---@return string cmd_check, string cmd_paste
-M.get_clip_command = function ()
+M.get_clip_command = function()
   local cmd_check, cmd_paste = '', ''
   local this_os = M.get_os()
   if this_os == 'Linux' then
     local display_server = os.getenv('XDG_SESSION_TYPE')
     if display_server == 'x11' then
+      cmd_check = 'xclip -selection clipboard -o -t TARGETS'
+      cmd_paste = 'xclip -selection clipboard -t image/png -o > \'%s\''
+    elseif display_server == 'tty' then
       cmd_check = 'xclip -selection clipboard -o -t TARGETS'
       cmd_paste = 'xclip -selection clipboard -t image/png -o > \'%s\''
     elseif display_server == 'wayland' then
@@ -28,16 +31,16 @@ M.get_clip_command = function ()
     cmd_paste = 'pngpaste \'%s\''
   elseif this_os == 'Windows' then
     cmd_check = 'Get-Clipboard -Format Image'
-    cmd_paste = '$content = '..cmd_check..';$content.Save(\'%s\', \'png\')'
-    cmd_check = 'powershell.exe \"'..cmd_check..'\"'
-    cmd_paste = 'powershell.exe \"'..cmd_paste..'\"'
+    cmd_paste = '$content = ' .. cmd_check .. ';$content.Save(\'%s\', \'png\')'
+    cmd_check = 'powershell.exe \"' .. cmd_check .. '\"'
+    cmd_paste = 'powershell.exe \"' .. cmd_paste .. '\"'
   end
   return cmd_check, cmd_paste
 end
 
 ---Will be used in utils.is_clipboard_img to check if image data exist
 ---@param command string #command to check clip_content
-M.get_clip_content = function (command)
+M.get_clip_content = function(command)
   command = io.popen(command)
   local outputs = {}
 
@@ -51,7 +54,7 @@ end
 ---Check if clipboard contain image data
 ---See also: [Data URI scheme](https://en.wikipedia.org/wiki/Data_URI_scheme)
 ---@param content string #clipboard content
-M.is_clipboard_img = function (content)
+M.is_clipboard_img = function(content)
   local this_os = M.get_os()
   if this_os == 'Linux' and vim.tbl_contains(content, 'image/png') then
     return true
@@ -82,7 +85,7 @@ M.resolve_dir = function(dirs, path_separator)
 end
 
 ---@param dir string or table
-M.create_dir = function (dir)
+M.create_dir = function(dir)
   dir = M.resolve_dir(dir)
   if vim.fn.isdirectory(dir) == 0 then
     vim.fn.mkdir(dir, 'p')
@@ -93,7 +96,7 @@ end
 ---@param img_name string
 ---@param is_txt? '"txt"'
 ---@return string img_path
-M.get_img_path = function (dir, img_name, is_txt)
+M.get_img_path = function(dir, img_name, is_txt)
   local this_os = M.get_os()
   local img = img_name .. '.png'
 
@@ -125,7 +128,7 @@ M.insert_txt = function(affix, path_txt)
   end
 
   for line_index, line in pairs(lines) do
-    local current_line_num = line_num + line_index-1
+    local current_line_num = line_num + line_index - 1
     local current_line = vim.fn.getline(current_line_num)
     ---Since there's no collumn 0, remove extra space when current line is blank
     if current_line == '' then
@@ -133,7 +136,7 @@ M.insert_txt = function(affix, path_txt)
     end
 
     local pre_txt = current_line:sub(1, line_col)
-    local post_txt = current_line:sub(line_col+1, -1)
+    local post_txt = current_line:sub(line_col + 1, -1)
     local inserted_txt = pre_txt .. line .. post_txt
 
     vim.fn.setline(current_line_num, inserted_txt)
