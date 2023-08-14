@@ -19,13 +19,13 @@ M.get_clip_command = function()
 		if display_server == "x11" then
 			cmd_check = "xclip -selection clipboard -o -t TARGETS"
 			cmd_paste = "xclip -selection clipboard -t image/png -o > '%s'"
-		elseif display_server == "tty" then
-			cmd_check = "xclip -selection clipboard -o -t TARGETS"
-			cmd_paste = "xclip -selection clipboard -t image/png -o > '%s'"
 		elseif display_server == "wayland" then
 			cmd_check = "wl-paste --list-types"
 			cmd_paste = "wl-paste --no-newline --type image/png > '%s'"
-		else
+		elseif os.getenv("SSH_TTY") ~= nil then
+			cmd_check = "xclip -selection clipboard -o -t TARGETS"
+			cmd_paste = "xclip -selection clipboard -t image/png -o > '%s'"
+		elseif os.getenv("SCREENSHOT_DIR") ~= nil then
 			-- for crostini
 			cmd_check =
 				"xclip -selection clipboard -in $(ls -t $SCREENSHOT_DIR/*.png | head -n 1) -t image/png && xclip -selection clipboard -o -t TARGETS"
