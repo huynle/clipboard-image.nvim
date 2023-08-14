@@ -22,7 +22,7 @@ M.get_clip_command = function()
 		elseif display_server == "wayland" then
 			cmd_check = "wl-paste --list-types"
 			cmd_paste = "wl-paste --no-newline --type image/png > '%s'"
-		elseif os.getenv("SSH_TTY") ~= nil then
+		elseif os.getenv("SSH_CONNECTION") ~= nil then
 			cmd_check = "xclip -selection clipboard -o -t TARGETS"
 			cmd_paste = "xclip -selection clipboard -t image/png -o > '%s'"
 		elseif os.getenv("SCREENSHOT_DIR") ~= nil then
