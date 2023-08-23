@@ -16,10 +16,11 @@ M.get_clip_command = function()
 	local this_os = M.get_os()
 	if this_os == "Linux" then
 		local display_server = os.getenv("XDG_SESSION_TYPE")
-		if display_server == "x11" then
+		local clipboard = os.getenv("NVIM_CLIPBOARD")
+		if display_server == "x11" or clipboard == "xclip" then
 			cmd_check = "xclip -selection clipboard -o -t TARGETS"
 			cmd_paste = "xclip -selection clipboard -t image/png -o > '%s'"
-		elseif display_server == "wayland" then
+		elseif display_server == "wayland" or clipboard == "wl-paste" then
 			cmd_check = "wl-paste --list-types"
 			cmd_paste = "wl-paste --no-newline --type image/png > '%s'"
 		elseif os.getenv("SSH_CONNECTION") ~= nil then
